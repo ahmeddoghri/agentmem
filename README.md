@@ -2,6 +2,7 @@
 
 **A bounded, self-consolidating long-term memory layer for LLM agents.**
 
+![CI](https://github.com/ahmeddoghri/agentmem/actions/workflows/ci.yml/badge.svg)
 ![tests](https://img.shields.io/badge/tests-7%20passing-brightgreen)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
@@ -30,6 +31,13 @@ model or LLM with a one-method interface when you want production quality.
 git clone https://github.com/ahmeddoghri/agentmem
 cd agentmem
 pip install -e .
+```
+
+Or with Docker:
+
+```bash
+docker build -t agentmem .
+docker run --rm agentmem
 ```
 
 ## 60-second example
