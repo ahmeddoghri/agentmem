@@ -1,4 +1,4 @@
-from agentmem import MemoryStore, HashingEmbedder, cosine
+from agentmem import HashingEmbedder, MemoryStore, cosine
 
 
 def test_write_and_retrieve():
