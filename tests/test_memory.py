@@ -49,7 +49,7 @@ def test_consolidation_merges_similar():
 def test_retrieval_strengthens_against_eviction():
     mem = MemoryStore(capacity=5, write_threshold=0.0, merge_threshold=0.99,
                       half_life_seconds=1.0)
-    keeper = mem.write("Critical fact: the launch code is alpha-seven-niner.", salience=0.9)
+    mem.write("Critical fact: the launch code is alpha-seven-niner.", salience=0.9)
     for _ in range(5):
         mem.retrieve("what is the launch code?")
     for i in range(20):
