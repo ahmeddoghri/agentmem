@@ -8,6 +8,10 @@
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
 ![license](https://img.shields.io/badge/license-MIT-black)
 
+> **Long-term agent memory that stays under a fixed budget instead of growing
+> forever** — salience-gated writes, decay-aware retrieval, consolidation.
+> Zero deps, zero API keys: `python -m agentmem.eval`.
+
 Most "agent memory" is just an unbounded vector store — dump every turn in, hope
 retrieval sorts it out. Real agents run under a **fixed budget** and need to
 *decide* what's worth keeping. AgentMem treats memory as a policy: writes are
