@@ -57,7 +57,7 @@ mem.write("Deadline for the launch is Friday.")
 
 for hit in mem.retrieve("when is the deadline?", k=1):
     print(hit.score, hit.item.content)
-# 0.87 Deadline for the launch is Friday.
+# 0.90 Deadline for the launch is Friday.
 ```
 
 ## Why it's different
