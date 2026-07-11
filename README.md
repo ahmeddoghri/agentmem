@@ -32,6 +32,16 @@ model or LLM with a one-method interface when you want production quality.
 ## Install
 
 ```bash
+pip install agentmem-bounded
+```
+
+The import stays `import agentmem` — only the PyPI distribution name is
+`agentmem-bounded` (the plain `agentmem` name was already taken by an
+unrelated project).
+
+For local development:
+
+```bash
 git clone https://github.com/ahmeddoghri/agentmem
 cd agentmem
 pip install -e .

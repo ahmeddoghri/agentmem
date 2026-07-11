@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentmem"
+name = "agentmem-bounded"
 version = "0.1.0"
 description = "A bounded, self-consolidating long-term memory layer for LLM agents."
 readme = "README.md"
