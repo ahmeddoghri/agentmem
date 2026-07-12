@@ -21,7 +21,7 @@ _STOP = {
 
 class LLM(Protocol):
     def score_salience(self, text: str) -> float:
-        """Return importance in [0, 1] — how worth remembering this is."""
+        """Return importance in [0, 1], how worth remembering this is."""
         ...
 
     def summarize(self, texts: Sequence[str]) -> str:

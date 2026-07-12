@@ -1,4 +1,4 @@
-"""AgentMem — a bounded, self-consolidating memory layer for LLM agents.
+"""AgentMem, a bounded, self-consolidating memory layer for LLM agents.
 
 Quickstart
 ----------

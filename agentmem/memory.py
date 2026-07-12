@@ -1,12 +1,12 @@
 """Bounded, self-consolidating long-term memory for LLM agents.
 
-Design follows two ideas from the mid-2026 agent-memory literature:
+Two ideas drive the design:
 
-* **Memory as a cognitive skill** (AutoMem, 2026) — the agent *decides* what is
-  worth storing and actively consolidates related items instead of dumping every
+* **Memory as a decision, not a dump.** The agent decides what is worth
+  storing and actively consolidates related items instead of writing every
   turn into a vector store.
-* **Bounded memory** (AgenticSTS, 2026) — real agents operate under a fixed
-  budget, so retention is a policy problem: what to keep, merge, or forget.
+* **Bounded memory.** Real agents operate under a fixed budget, so retention
+  is a policy problem: what to keep, merge, or forget.
 
 ``MemoryStore`` ties these together: writes are salience-gated, retrieval blends
 semantic similarity with recency and importance, and when the store exceeds its
@@ -34,7 +34,7 @@ class MemoryItem:
     sources: list[int] = field(default_factory=list)  # ids merged into this one
 
     def strength(self, now: float, half_life: float) -> float:
-        """Decayed retention strength — importance that fades unless reused."""
+        """Decayed retention strength, importance that fades unless reused."""
         age = max(0.0, now - self.last_used)
         decay = 0.5 ** (age / half_life) if half_life > 0 else 1.0
         return self.salience * decay * (1.0 + 0.1 * self.uses)
