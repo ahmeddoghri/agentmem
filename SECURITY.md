@@ -20,6 +20,8 @@ remain anonymous.
 ## Scope notes
 
 `agentmem` is a pure-stdlib library with no runtime dependencies and makes no
-network calls on its own. When you plug in your own model, embedding, or
-storage backend, that component's security posture is your responsibility —
-validate and sanitize any untrusted text you feed through the library.
+network calls on its own, so there isn't much surface area to attack unless
+you bring it yourself. When you plug in your own model, embedding, or
+storage backend, that component's security posture is your responsibility.
+Validate and sanitize any untrusted text you feed through the library, same
+as you would anywhere else.

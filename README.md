@@ -9,23 +9,25 @@
 ![license](https://img.shields.io/badge/license-MIT-black)
 
 > **Long-term agent memory that stays under a fixed budget instead of growing
-> forever** — salience-gated writes, decay-aware retrieval, consolidation.
+> forever.** Salience-gated writes, decay-aware retrieval, consolidation.
 > Zero deps, zero API keys: `python -m agentmem.eval`.
 
-Most "agent memory" is just an unbounded vector store — dump every turn in, hope
-retrieval sorts it out. Real agents run under a **fixed budget** and need to
-*decide* what's worth keeping. AgentMem treats memory as a policy: writes are
-**salience-gated**, retrieval blends **similarity + recency + importance**, and
-when the store fills up it **consolidates redundant memories into summaries**
-before evicting the weakest ones.
+Your agent doesn't need to remember that you said "ok sounds good" on
+March 3rd. Most "agent memory" is a vector store with no opinions: dump
+every turn in, hope retrieval sorts out the treasure from the small talk
+later. That's not memory, that's a junk drawer with embeddings.
 
-Runs with **zero dependencies and zero API keys** out of the box (deterministic
-hashing embeddings + an extractive consolidator). Swap in your own embedding
-model or LLM with a one-method interface when you want production quality.
+AgentMem treats memory like an actual budget, because real agents run
+under one. Writes are **salience-gated** (small talk gets bounced at the
+door), retrieval blends **similarity + recency + importance**, and when
+the store fills up it **consolidates** redundant memories into summaries
+before evicting the weakest ones. Think Marie Kondo, if Marie Kondo also
+did exponential decay.
 
-> **Inspired by the mid-2026 agent-memory literature:**
-> - *AutoMem: Automated Learning of Memory as a Cognitive Skill* (2026) — memory as an active, learned skill rather than passive storage.
-> - *AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents* (2026) — evaluating agents under realistic memory budgets.
+Runs with **zero dependencies and zero API keys** out of the box
+(deterministic hashing embeddings plus an extractive consolidator). Swap
+in your own embedding model or LLM through a one-method interface when
+you're ready for the real thing.
 
 ---
 
@@ -35,9 +37,9 @@ model or LLM with a one-method interface when you want production quality.
 pip install agentmem-bounded
 ```
 
-The import stays `import agentmem` — only the PyPI distribution name is
-`agentmem-bounded` (the plain `agentmem` name was already taken by an
-unrelated project).
+The import stays `import agentmem`. Only the PyPI distribution name is
+`agentmem-bounded`, because the plain `agentmem` name was already claimed
+by an unrelated project. First come, first served, apparently.
 
 For local development:
 
@@ -62,7 +64,7 @@ from agentmem import MemoryStore
 mem = MemoryStore(capacity=100)
 
 mem.write("The user's name is Ahmed, a staff ML engineer in Toronto.")
-mem.write("ok sounds good")          # ← filler, gated out (never stored)
+mem.write("ok sounds good")          # filler. gated out. never even considered.
 mem.write("Deadline for the launch is Friday.")
 
 for hit in mem.retrieve("when is the deadline?", k=1):
@@ -70,52 +72,59 @@ for hit in mem.retrieve("when is the deadline?", k=1):
 # 0.90 Deadline for the launch is Friday.
 ```
 
+Notice what's missing from the output: "ok sounds good." It never made it
+past the front door.
+
 ## Why it's different
 
 | Typical vector memory | AgentMem |
 |---|---|
 | Stores every message | **Salience gate** drops filler before it ever lands |
-| Grows unbounded | **Hard capacity** with decay-aware eviction |
-| Duplicates pile up | **Near-exact dedup** on write reinforces instead of duplicating |
-| Redundant facts scattered | **Consolidation** fuses related memories into summaries |
-| Pure cosine ranking | **Similarity + recency + importance**, and retrieval strengthens memories against forgetting |
+| Grows unbounded | **Hard capacity**, decay-aware eviction |
+| Duplicates pile up | **Near-exact dedup** reinforces instead of duplicating |
+| Redundant facts scattered everywhere | **Consolidation** fuses related memories into one summary |
+| Pure cosine ranking | **Similarity + recency + importance**, and retrieval itself fights forgetting |
 
 ## How it works
 
 ```
 write(text)
-  ├─ score salience ── below threshold? ─► drop
+  ├─ score salience ── below threshold? ─► drop, no hard feelings
   ├─ near-exact match? ─► reinforce existing (uses++, salience↑)
   └─ store new item
-        └─ over capacity? ─► consolidate() then evict weakest by decayed strength
+        └─ over capacity? ─► consolidate() then evict the weakest by decayed strength
 
 retrieve(query, k)
   └─ rank by  cosine(sim) + w_r·recency + w_s·salience
         └─ touch top-k (last_used = now, uses++)  ← retrieval fights decay
 ```
 
-Retention strength decays with a configurable half-life, so unused memories fade
-while frequently-retrieved ones persist — the eviction policy that keeps a small
-budget useful over long horizons.
+Retention strength decays on a configurable half-life, so memories nobody
+asks about quietly fade while the frequently-retrieved ones stick around.
+It's the same principle as your own brain, minus the part where you can't
+remember why you walked into the kitchen.
 
-## Benchmark: bounded-memory recall (AgenticSTS-style)
+## Benchmark: bounded-memory recall
 
-Stream 200 salient facts past the agent, interleaved with distractor chatter,
-while capping memory at 32 slots. Then quiz on a random sample:
+Stream 200 salient facts past the agent, interleaved with distractor
+chatter, while capping memory at 32 slots. Then quiz it on a random
+sample:
 
 ```bash
 python -m agentmem.eval --capacity 32 --facts 200
 # facts=200  capacity=32  final_size=32
-# recall@5 = 46.0%
+# recall@5 = 52.0%
 ```
 
-Raise `--capacity` and recall climbs toward 100% — the benchmark makes the
-budget/accuracy tradeoff explicit, which is the whole point of bounded-memory
-evaluation. Use it as a regression harness when tuning your own retention policy.
+Raise `--capacity` and recall climbs toward 100%. That's not a bug, that's
+the entire point: the benchmark makes the budget/accuracy tradeoff
+impossible to ignore. Use it as a regression harness while you tune your
+own retention policy.
 
 ## Bring your own models
 
-Anything with the right method works — no base classes to inherit:
+Anything with the right method works. No base classes to inherit, no
+sixteen-layer abstract factory to implement.
 
 ```python
 class MyEmbedder:
@@ -137,7 +146,7 @@ pip install pytest && pytest -q     # 7 passing
 
 ## More in this series
 
-Nine small, dependency-light, benchmarked tools for LLM/ML infrastructure — each reproduces its headline number locally with no API keys:
+Nine small, dependency-light, benchmarked tools for LLM/ML infrastructure. Each one reproduces its headline number locally with no API keys:
 
 [rubricagent](https://github.com/ahmeddoghri/rubricagent) · [clarifyrag](https://github.com/ahmeddoghri/clarifyrag) · [churnfm](https://github.com/ahmeddoghri/churnfm) · [citebench](https://github.com/ahmeddoghri/citebench) · [guardrail-gate](https://github.com/ahmeddoghri/guardrail-gate) · [tablextract](https://github.com/ahmeddoghri/tablextract) · [vllm-cost-router](https://github.com/ahmeddoghri/vllm-cost-router) · [taggate](https://github.com/ahmeddoghri/taggate)
 
