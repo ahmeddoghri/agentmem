@@ -27,7 +27,7 @@ import random
 from dataclasses import dataclass
 from typing import Dict, List, Sequence
 
-from .adversarial import ADVERSARIAL_CORPUS, HOLDOUT_CORPUS, LabeledUtterance
+from .adversarial import ADVERSARIAL_CORPUS, HOLDOUT_CORPUS
 from .llm import ExtractiveLLM
 from .llm_v2 import ExtractiveLLMV2
 from .memory import MemoryStore

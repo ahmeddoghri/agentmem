@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Sequence
 
 from .embeddings import Embedder, HashingEmbedder, cosine
-from .llm import LLM, ExtractiveLLM
+from .llm import LLM
 from .llm_v2 import ExtractiveLLMV2
 
 

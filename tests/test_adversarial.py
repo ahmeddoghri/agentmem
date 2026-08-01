@@ -15,7 +15,6 @@ from agentmem.llm import ExtractiveLLM
 from agentmem.llm_v2 import ExtractiveLLMV2, _is_pronoun_form
 from agentmem.memory import MemoryStore
 
-
 # --- the finding: "I" is not a proper noun ----------------------------------
 
 def test_original_scorer_flags_capitalized_i_as_a_proper_noun():
