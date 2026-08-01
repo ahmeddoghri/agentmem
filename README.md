@@ -3,7 +3,7 @@
 **A bounded, self-consolidating long-term memory layer for LLM agents.**
 
 ![CI](https://github.com/ahmeddoghri/agentmem/actions/workflows/ci.yml/badge.svg)
-![tests](https://img.shields.io/badge/tests-7%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-29%20passing-brightgreen)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
 ![license](https://img.shields.io/badge/license-MIT-black)
@@ -11,6 +11,13 @@
 > **Long-term agent memory that stays under a fixed budget instead of growing
 > forever.** Salience-gated writes, decay-aware retrieval, consolidation.
 > Zero deps, zero API keys: `python -m agentmem.eval`.
+>
+> The bundled benchmark never actually exercises the gate: it hand-sets
+> salience for every write. Run the real scorer end to end and **37% of
+> pure filler gets written to memory anyway**, because "I" is always
+> capitalized and the scorer reads that as a named entity.
+> `python -m agentmem.eval_v2` is the benchmark that found it, and a fixed
+> scorer that gets the leak rate to 0%.
 
 Your agent doesn't need to remember that you said "ok sounds good" on
 March 3rd. Most "agent memory" is a vector store with no opinions: dump
@@ -120,6 +127,74 @@ Raise `--capacity` and recall climbs toward 100%. That's not a bug, that's
 the entire point: the benchmark makes the budget/accuracy tradeoff
 impossible to ignore. Use it as a regression harness while you tune your
 own retention policy.
+
+Note the `consolidations` line: earlier versions of this benchmark hardcoded
+that field to `0` regardless of what actually happened, so the second half of
+this project's own name never had a number attached to it in its own output.
+`MemoryStore` now tracks `total_merges` directly, and the benchmark reports it.
+
+## The salience gate that never gated
+
+The benchmark above calls `mem.write(fact, salience=0.9)` and
+`mem.write(chatter, salience=0.05)`, both explicit overrides, and runs with
+`write_threshold=0.0` so nothing is ever rejected either way. "Salience-gated
+writes" is the first thing this README promises, and its own flagship
+benchmark never lets the scorer make a single gating decision.
+
+Run the real scorer end to end, no overrides, on the same synthetic stream:
+
+```bash
+python -m agentmem.eval_v2
+```
+```
+End to end: the real gate deciding every write, no overrides
+scorer      leak rate   distractors  recall@5  consolidations
+v1               37%    297/800         50%               8
+v2                0%      0/800         52%              10
+```
+
+**37% of pure filler got written to memory anyway.** The cause: the scorer
+rewards a sentence for containing a mid-sentence capitalized word, on the
+theory that capitalization marks a named entity ("Toronto", "UA482"). "I" is
+always capitalized, whether or not it introduces anything worth remembering.
+`"Hmm, I'm not sure about that."` contains "I'm" and scores 0.596, comfortably
+over the 0.35 write threshold, for exactly the kind of small talk this
+README's own opening paragraph uses as its example of what should never be
+remembered.
+
+```
+Gate precision/recall on labeled sentences
+split / scorer            precision   recall
+adversarial / v1               53%     100%
+adversarial / v2              100%     100%
+holdout / v1                   40%     100%
+holdout / v2                  100%     100%
+```
+
+Fixing the specific "I" bug wasn't enough on its own: stripping the false
+proper-noun credit still left sentences like "Hmm, I'm not sure about that."
+a few points over the threshold, carried by length and word-density alone.
+"not", "sure", and "about" were never stopwords in the original list, so a
+five-word hedge reads as five words of content. `ExtractiveLLMV2` adds those
+hedges to what counts as a stopword for salience purposes, the actual
+vocabulary of thinking out loud rather than a fact worth keeping.
+
+`MemoryStore` uses `ExtractiveLLMV2` by default now. `ExtractiveLLM` (the
+original) is still exported for anyone reproducing the benchmark above or
+who wants the old behavior.
+
+### Held out, run once
+
+`ExtractiveLLMV2`'s stopword and pronoun-form additions were frozen against
+the adversarial corpus above before a second set of ten sentences was
+written and scored a single time. Zero false positives, zero false
+negatives, same as the tuning corpus.
+
+### Limits
+
+- **Still a heuristic, not a model.** It knows "I'm not sure" is filler because that phrase and its relatives are enumerated; a paraphrase it hasn't seen may still slip through.
+- **English-specific.** The stopword and hedge lists assume English discourse markers.
+- **Fixing precision on filler says nothing about summarization quality.** `summarize()` is unchanged from the original; the bug was entirely in `score_salience`.
 
 ## Bring your own models
 

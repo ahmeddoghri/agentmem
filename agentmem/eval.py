@@ -45,7 +45,6 @@ def run(capacity: int = 32, n_facts: int = 200, distractors: int = 4,
     mem = MemoryStore(capacity=capacity, write_threshold=0.0, half_life_seconds=1e9)
 
     facts: list[tuple[str, str]] = []  # (question, expected_answer)
-    consolidations = 0
     for i in range(n_facts):
         subj = rng.choice(_SUBJECTS) + str(i)
         city = rng.choice(_CITIES)
@@ -67,7 +66,7 @@ def run(capacity: int = 32, n_facts: int = 200, distractors: int = 4,
         facts=n_facts,
         capacity=capacity,
         recall_at_k=recall,
-        consolidations=consolidations,
+        consolidations=mem.total_merges,
         final_size=len(mem),
     )
 
@@ -83,6 +82,7 @@ def main() -> None:
     res = run(args.capacity, args.facts, args.distractors, args.k, args.seed)
     print(f"facts={res.facts}  capacity={res.capacity}  final_size={res.final_size}")
     print(f"recall@{args.k} = {res.recall_at_k:.1%}")
+    print(f"consolidations = {res.consolidations}")
 
 
 if __name__ == "__main__":

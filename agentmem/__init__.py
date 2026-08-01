@@ -12,6 +12,7 @@ Quickstart
 """
 from .embeddings import Embedder, HashingEmbedder, cosine
 from .llm import LLM, ExtractiveLLM
+from .llm_v2 import ExtractiveLLMV2
 from .memory import MemoryItem, MemoryStore, Retrieved
 
 __all__ = [
@@ -22,6 +23,7 @@ __all__ = [
     "HashingEmbedder",
     "LLM",
     "ExtractiveLLM",
+    "ExtractiveLLMV2",
     "cosine",
 ]
 __version__ = "0.1.0"

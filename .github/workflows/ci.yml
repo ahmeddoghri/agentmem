@@ -7,6 +7,35 @@ on:
     branches: [main]
 
 jobs:
+  adversarial:
+    # The salience gate can regress silently: it keeps writing memories, they
+    # are just filler. This fails the build if the leak rate climbs above
+    # zero or if gate precision drops on either labeled corpus.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install package
+        run: pip install -e .
+      - name: Run the gate + leak-rate benchmark
+        run: |
+          python -m agentmem.eval_v2
+          python - <<'EOF'
+          from agentmem.eval_v2 import build_report
+
+          report = build_report()
+          for split in ("adversarial", "holdout"):
+              v2 = report["gate"][split]["v2"]
+              assert v2["precision"] == 1.0, (split, v2)
+              assert v2["recall"] == 1.0, (split, v2)
+
+          e2e = report["end_to_end"]["v2"]
+          assert e2e["leak_rate"] == 0.0, e2e
+          print("gate precision and zero leak rate hold")
+          EOF
+
   test:
     runs-on: ubuntu-latest
     strategy:

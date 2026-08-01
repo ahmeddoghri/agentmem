@@ -20,6 +20,7 @@ from typing import Optional, Sequence
 
 from .embeddings import Embedder, HashingEmbedder, cosine
 from .llm import LLM, ExtractiveLLM
+from .llm_v2 import ExtractiveLLMV2
 
 
 @dataclass
@@ -83,10 +84,21 @@ class MemoryStore:
         self.dedup_threshold = dedup_threshold
         self.merge_threshold = merge_threshold
         self.embedder = embedder or HashingEmbedder()
-        self.llm = llm or ExtractiveLLM()
+        # ExtractiveLLMV2 by default: the original scorer treats the
+        # capitalized pronoun "I" (and its contractions) as a named-entity
+        # signal, so filler like "I'm not sure about that" clears the write
+        # threshold. Measured end to end, 37% of pure chatter got written to
+        # memory. ExtractiveLLM remains available for anyone who wants the
+        # old behavior or is reproducing the original benchmark.
+        self.llm = llm or ExtractiveLLMV2()
         self._clock = clock
         self._items: dict[int, MemoryItem] = {}
         self._next_id = 0
+        #: Running total of merge operations, across the store's lifetime.
+        #: Exists because "self-consolidating" is the headline claim and
+        #: nothing previously reported whether consolidation had fired even
+        #: once; eval.py hardcoded its own consolidations field to 0.
+        self.total_merges = 0
 
     # ------------------------------------------------------------------ write
     def write(self, content: str, salience: Optional[float] = None) -> Optional[MemoryItem]:
@@ -186,6 +198,7 @@ class MemoryStore:
             if len(group) > 1:
                 self._merge(group)
                 merges += 1
+        self.total_merges += merges
         return merges
 
     def _merge(self, group: Sequence[MemoryItem]) -> None:
