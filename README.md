@@ -2,7 +2,6 @@
 
 **A bounded, self-consolidating long-term memory layer for LLM agents.**
 
-![CI](https://github.com/ahmeddoghri/agentmem/actions/workflows/ci.yml/badge.svg)
 ![tests](https://img.shields.io/badge/tests-29%20passing-brightgreen)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
