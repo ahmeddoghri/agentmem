@@ -2,10 +2,13 @@
 
 **A bounded, self-consolidating long-term memory layer for LLM agents.**
 
-![tests](https://img.shields.io/badge/tests-29%20passing-brightgreen)
+[![tests](https://github.com/ahmeddoghri/agentmem/actions/workflows/tests.yml/badge.svg)](https://github.com/ahmeddoghri/agentmem/actions/workflows/tests.yml)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
 ![license](https://img.shields.io/badge/license-MIT-black)
+[![case study](https://img.shields.io/badge/case%20study-adoghri.com-e0703e)](https://adoghri.com/project-10.html)
+
+![agentmem](docs/cover.jpg)
 
 > **Long-term agent memory that stays under a fixed budget instead of growing
 > forever.** Salience-gated writes, decay-aware retrieval, consolidation.
@@ -215,7 +218,7 @@ mem = MemoryStore(embedder=MyEmbedder(), llm=MyLLM())
 ## Tests
 
 ```bash
-pip install pytest && pytest -q     # 7 passing
+pip install pytest && pytest -q     # 29 passing
 ```
 
 ## More in this series
