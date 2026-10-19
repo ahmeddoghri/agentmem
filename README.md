@@ -1,4 +1,4 @@
-# 🧠 AgentMem
+# agentmem
 
 **A bounded, self-consolidating long-term memory layer for LLM agents.**
 
@@ -26,7 +26,7 @@ March 3rd. Most "agent memory" is a vector store with no opinions: dump
 every turn in, hope retrieval sorts out the treasure from the small talk
 later. That's not memory, that's a junk drawer with embeddings.
 
-AgentMem treats memory like an actual budget, because real agents run
+agentmem treats memory like an actual budget, because real agents run
 under one. Writes are **salience-gated** (small talk gets bounced at the
 door), retrieval blends **similarity + recency + importance**, and when
 the store fills up it **consolidates** redundant memories into summaries
@@ -86,7 +86,7 @@ past the front door.
 
 ## Why it's different
 
-| Typical vector memory | AgentMem |
+| Typical vector memory | agentmem |
 |---|---|
 | Stores every message | **Salience gate** drops filler before it ever lands |
 | Grows unbounded | **Hard capacity**, decay-aware eviction |
